@@ -17,5 +17,17 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/upload/:path*", "/docs/:path*", "/search/:path*", "/settings/:path*", "/api/upload/:path*", "/api/ingest/:path*", "/api/documents/:path*"]
+  matcher: [
+    "/dashboard/:path*",
+    "/upload/:path*",
+    "/docs/:path*",
+    "/search/:path*",
+    "/settings/:path*",
+    "/admin/:path*",
+    "/api/upload/:path*",
+    "/api/ingest/:path*",
+    "/api/documents/:path*",
+    "/api/folders/:path*",
+    "/api/admin/:path*"
+  ]
 };

@@ -14,8 +14,8 @@ export default function LandingPage() {
           Bring a document. We&apos;ll structure it into usable knowledge with deterministic sections ready for citations.
         </p>
         <div className="flex flex-wrap gap-3">
-          <Link href="/signup">
-            <Button>Upload a PDF</Button>
+          <Link href="/request-invite">
+            <Button>Request an invite</Button>
           </Link>
           <Link href="/login">
             <Button variant="secondary">Sign in</Button>
