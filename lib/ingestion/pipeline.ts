@@ -7,6 +7,7 @@ import { generateMarkdownArtifact } from "@/lib/ingestion/markdown";
 import type { IngestionContext } from "@/lib/ingestion/types";
 import { completeDocumentProcessing, setDocumentStatus } from "@/lib/repositories/documents";
 import { upsertDocChunks } from "@/lib/repositories/chunks";
+import { upsertDocumentExtractedText } from "@/lib/repositories/document-text";
 import { uploadMarkdownBlob } from "@/lib/blob";
 
 async function writeStatusEvent(input: { documentId: string; stage: string; status: "Processing" | "Ready" | "Failed"; message?: string }) {
@@ -39,6 +40,10 @@ export async function runIngestionPipeline(input: IngestionContext) {
     }
 
     logger.info("ingestion.extract.completed", { documentId: input.documentId, pageCount: extracted.pageCount });
+    await upsertDocumentExtractedText({
+      documentId: input.documentId,
+      extractedText: extracted.text
+    });
     await writeStatusEvent({ documentId: input.documentId, stage: "normalize", status: "Processing", message: "Normalizing structure" });
 
     const normalizedSections = normalizeStructure(extracted.text);

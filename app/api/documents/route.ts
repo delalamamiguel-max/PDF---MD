@@ -16,6 +16,7 @@ export async function GET(request: Request) {
     status: searchParams.get("status") ?? undefined,
     q: searchParams.get("q") ?? undefined,
     tag: searchParams.get("tag") ?? undefined,
+    folderId: searchParams.get("folderId") ?? undefined,
     from: searchParams.get("from") ?? undefined,
     to: searchParams.get("to") ?? undefined
   });

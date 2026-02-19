@@ -1,0 +1,24 @@
+type Entry = {
+  count: number;
+  resetAt: number;
+};
+
+const store = new Map<string, Entry>();
+
+export function checkRateLimit(key: string, max: number, windowMs: number) {
+  const now = Date.now();
+  const current = store.get(key);
+
+  if (!current || current.resetAt <= now) {
+    store.set(key, { count: 1, resetAt: now + windowMs });
+    return { ok: true, remaining: max - 1 };
+  }
+
+  if (current.count >= max) {
+    return { ok: false, remaining: 0, retryAfterMs: current.resetAt - now };
+  }
+
+  current.count += 1;
+  store.set(key, current);
+  return { ok: true, remaining: max - current.count };
+}

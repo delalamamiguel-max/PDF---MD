@@ -8,6 +8,11 @@ import { Input } from "@/components/ui/input";
 
 type Step = "upload" | "extract" | "normalize" | "markdown" | "embeddings";
 
+type FolderOption = {
+  id: string;
+  name: string;
+};
+
 const stepLabels: Record<Step, string> = {
   upload: "Upload PDF",
   extract: "Extract text",
@@ -16,12 +21,14 @@ const stepLabels: Record<Step, string> = {
   embeddings: "Create embeddings"
 };
 
-export function UploadForm() {
+export function UploadForm({ folders }: { folders: FolderOption[] }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<Step>("upload");
+  const [dragging, setDragging] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const orderedSteps = useMemo(() => Object.keys(stepLabels) as Step[], []);
 
@@ -31,7 +38,7 @@ export function UploadForm() {
     setError(null);
 
     const formData = new FormData(event.currentTarget);
-    const file = formData.get("file");
+    const file = selectedFile ?? formData.get("file");
 
     if (!(file instanceof File) || file.type !== "application/pdf") {
       setError("Please upload a valid PDF file.");
@@ -42,6 +49,7 @@ export function UploadForm() {
     const payload = new FormData();
     payload.append("title", String(formData.get("title") || file.name.replace(/\.pdf$/i, "")));
     payload.append("tags", String(formData.get("tags") || ""));
+    payload.append("folderId", String(formData.get("folderId") || ""));
     payload.append("file", file);
 
     setStep("upload");
@@ -111,13 +119,37 @@ export function UploadForm() {
           <Input id="title" name="title" placeholder="Q4 Research Report" required />
         </div>
         <div className="space-y-2">
+          <label htmlFor="folderId" className="text-sm font-medium">Folder</label>
+          <select id="folderId" name="folderId" className="h-11 w-full rounded-md border border-[var(--muted)] bg-white px-3 text-sm" required>
+            <option value="">Select folder</option>
+            {folders.map((folder) => (
+              <option key={folder.id} value={folder.id}>{folder.name}</option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-2">
           <label htmlFor="tags" className="text-sm font-medium">Tags (comma separated)</label>
           <Input id="tags" name="tags" placeholder="research, finance" />
         </div>
-        <div className="space-y-2">
-          <label htmlFor="file" className="text-sm font-medium">PDF file</label>
-          <Input id="file" name="file" type="file" accept="application/pdf" required />
-          <p className="text-xs text-[var(--muted-foreground)]">Drag/drop supported by your browser file picker.</p>
+        <div
+          className={`rounded-lg border border-dashed p-6 text-center text-sm ${dragging ? "border-[var(--primary)] bg-blue-50" : "border-[var(--muted)]"}`}
+          onDragOver={(event) => {
+            event.preventDefault();
+            setDragging(true);
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={(event) => {
+            event.preventDefault();
+            setDragging(false);
+            const file = event.dataTransfer.files?.[0];
+            if (file) {
+              setSelectedFile(file);
+            }
+          }}
+        >
+          <p>Drag and drop a PDF here, or use the file picker.</p>
+          <Input id="file" name="file" type="file" accept="application/pdf" required={!selectedFile} className="mt-3" />
+          {selectedFile ? <p className="mt-2 text-[var(--muted-foreground)]">Selected: {selectedFile.name}</p> : null}
         </div>
         <Button type="submit" disabled={loading}>{loading ? "Processing..." : "Upload and process"}</Button>
       </form>

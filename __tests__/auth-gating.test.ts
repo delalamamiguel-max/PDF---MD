@@ -5,8 +5,10 @@ describe("auth gating", () => {
   it("marks app and api vault routes as protected", () => {
     expect(isProtectedPath("/dashboard")).toBe(true);
     expect(isProtectedPath("/upload")).toBe(true);
+    expect(isProtectedPath("/admin/invites")).toBe(true);
     expect(isProtectedPath("/api/upload")).toBe(true);
     expect(isProtectedPath("/api/documents/abc")).toBe(true);
+    expect(isProtectedPath("/api/admin/invites")).toBe(true);
   });
 
   it("keeps public routes unprotected", () => {

@@ -10,7 +10,8 @@ const links = [
   { href: "/dashboard", label: "Library" },
   { href: "/upload", label: "Upload" },
   { href: "/search", label: "Ask" },
-  { href: "/settings", label: "Settings" }
+  { href: "/settings", label: "Settings" },
+  { href: "/admin/invites", label: "Admin" }
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
