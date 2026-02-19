@@ -29,8 +29,10 @@ export function InviteAdminPanel({ initialInvites, initialRequests }: { initialI
   const [invites, setInvites] = useState(initialInvites);
   const [requests, setRequests] = useState(initialRequests);
   const [inviteLink, setInviteLink] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   async function createInvite(formData: FormData) {
+    setError(null);
     const response = await fetch("/api/admin/invites", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -40,7 +42,11 @@ export function InviteAdminPanel({ initialInvites, initialRequests }: { initialI
       })
     });
 
-    if (!response.ok) return;
+    if (!response.ok) {
+      const payload = (await response.json().catch(() => ({}))) as { error?: string };
+      setError(payload.error ?? "Unable to generate invite.");
+      return;
+    }
     const payload = (await response.json()) as { item: Invite; inviteLink: string };
     setInvites((prev) => [payload.item, ...prev]);
     setInviteLink(payload.inviteLink);
@@ -74,9 +80,11 @@ export function InviteAdminPanel({ initialInvites, initialRequests }: { initialI
           }}
         >
           <Input name="invitedEmail" type="email" placeholder="Email (optional)" />
-          <Input name="expiresInHours" type="number" min={1} max={720} defaultValue={72} />
+          <Input name="expiresInHours" type="number" min={1} max={720} defaultValue={72} aria-label="Expires in hours" />
           <Button type="submit">Generate invite</Button>
         </form>
+        <p className="text-xs text-[var(--muted-foreground)]">`72` means the invite expires 72 hours after generation. Leave email blank to generate a generic one-time invite.</p>
+        {error ? <p className="text-sm text-[var(--error)]">{error}</p> : null}
         {inviteLink ? <p className="text-sm text-[var(--muted-foreground)] break-all">Latest invite: {inviteLink}</p> : null}
       </Card>
 
