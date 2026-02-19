@@ -39,7 +39,7 @@ export async function createInviteToken(input: {
     VALUES (
       ${tokenHash},
       ${input.invitedEmail?.trim().toLowerCase() || null},
-      now() + make_interval(hours => ${expiresInHours}),
+      now() + (${expiresInHours}::int * interval '1 hour'),
       ${input.createdByUserId}
     )
     RETURNING id, invited_email, expires_at, used_at, revoked_at, created_at, created_by_user_id, used_by_email
