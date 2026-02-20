@@ -1,6 +1,9 @@
 import { Card } from "@/components/ui/card";
+import { requireAdmin } from "@/lib/session";
 
-export default function SearchPage() {
+export default async function SearchPage() {
+  await requireAdmin();
+
   return (
     <section className="space-y-4">
       <h1 className="text-3xl font-semibold">Ask your library</h1>

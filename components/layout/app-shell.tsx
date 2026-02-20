@@ -6,16 +6,20 @@ import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-const links = [
+const baseLinks = [
   { href: "/dashboard", label: "Library" },
   { href: "/upload", label: "Upload" },
+  { href: "/settings", label: "Settings" }
+];
+
+const adminOnlyLinks = [
   { href: "/search", label: "Ask" },
-  { href: "/settings", label: "Settings" },
   { href: "/admin/invites", label: "Admin" }
 ];
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children, isAdmin }: { children: React.ReactNode; isAdmin: boolean }) {
   const pathname = usePathname();
+  const links = isAdmin ? [...baseLinks, ...adminOnlyLinks] : baseLinks;
 
   return (
     <div className="min-h-screen">
