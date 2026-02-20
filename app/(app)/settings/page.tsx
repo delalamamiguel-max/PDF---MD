@@ -1,12 +1,33 @@
-import { Card } from "@/components/ui/card";
+import { SettingsPanel } from "@/components/settings/settings-panel";
+import { notFound } from "next/navigation";
+import { findUserById, isUserAdmin } from "@/lib/repositories/users";
+import { requireUser } from "@/lib/session";
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const { session, userId } = await requireUser();
+  const user = await findUserById(userId);
+
+  if (!user) {
+    notFound();
+  }
+
+  const admin = await isUserAdmin({
+    userId,
+    email: session?.user?.email
+  });
+
   return (
     <section className="space-y-4">
       <h1 className="text-3xl font-semibold">Settings</h1>
-      <Card>
-        <p className="text-sm text-[var(--muted-foreground)]">Profile and data retention controls are ready for expansion in V1.</p>
-      </Card>
+      <p className="text-sm text-[var(--muted-foreground)]">Manage your profile, access level, and workspace controls.</p>
+      <SettingsPanel
+        user={{
+          name: user.name ?? "",
+          email: user.email,
+          createdAt: user.created_at,
+          role: admin ? "admin" : "user"
+        }}
+      />
     </section>
   );
 }

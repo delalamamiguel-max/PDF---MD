@@ -66,3 +66,14 @@ export async function verifyPassword(email: string, password: string) {
 
   return user;
 }
+
+export async function updateUserName(input: { userId: string; name: string }) {
+  const rows = (await sql`
+    UPDATE users
+    SET name = ${input.name.trim()}
+    WHERE id = ${input.userId}
+    RETURNING id, email, name, password_hash, is_admin, created_at
+  `) as DbUser[];
+
+  return rows[0] ?? null;
+}
