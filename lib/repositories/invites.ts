@@ -49,7 +49,12 @@ export async function createInviteToken(input: {
 
   await sql`
     INSERT INTO invite_events (invite_token_id, actor_user_id, event_type, details)
-    VALUES (${invite.id}, ${input.createdByUserId}, 'generated', jsonb_build_object('invited_email', ${invite.invited_email}))
+    VALUES (
+      ${invite.id},
+      ${input.createdByUserId},
+      'generated',
+      jsonb_build_object('invited_email', to_jsonb(${invite.invited_email}::text))
+    )
   `;
 
   return { invite, rawToken };
@@ -175,7 +180,12 @@ export async function createUserFromInvite(input: {
   if (inviteRows[0]) {
     await sql`
       INSERT INTO invite_events (invite_token_id, actor_user_id, event_type, details)
-      VALUES (${inviteRows[0].id}, ${result[0].id}, 'used', jsonb_build_object('email', ${normalizedEmail}))
+      VALUES (
+        ${inviteRows[0].id},
+        ${result[0].id},
+        'used',
+        jsonb_build_object('email', to_jsonb(${normalizedEmail}::text))
+      )
     `;
   }
 
